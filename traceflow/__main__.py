@@ -35,7 +35,7 @@ def remove_duplicates(traces, daddr):
         # Remove any duplicate answers from daddr
         dup_keys = [i for i in traces[path] if traces[path][i] == daddr]
         while len(dup_keys) > 1:
-            print("dup keys: %s" % dup_keys)
+            logging.debug("dup keys: %s" % dup_keys)
             traces[path].pop(max(dup_keys))
             dup_keys = [i for i in traces[path] if traces[path][i] == daddr]
     return traces
@@ -171,6 +171,7 @@ def main():
     # Here we will fill in missing probes with a *
     # We should also trim any duplicate replies from daddr
     # and also fill in an x to pad up unequal path lengths
+    logging.debug(traces)
     traces = remove_duplicates(traces, daddr)
     path_max = max([max(traces[i].keys()) for i in traces.keys()])
     for path in traces.keys():
