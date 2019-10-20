@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="traceflow",
-    version="0.3",
+    version="0.4",
     author="Ruairi Carroll",
     author_email="ruairi.carroll@gmail.com",
     description="Python version of traceroute which is path aware",
@@ -21,8 +21,6 @@ setuptools.setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ],
-    package_data={
-        '': ['vars/*.html'],
-    },
-    entry_points = {"console_scripts": ["traceflow=traceflow.__main__:main"]},
+    package_data={"": ["var/*.html"]},
+    entry_points={"console_scripts": ["traceflow=traceflow.__main__:main"]},
 )

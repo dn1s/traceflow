@@ -21,7 +21,7 @@ class printer:
         # Print Body
         for path_id in sorted(traces.keys()):
             print(row_format % f"Path ID {path_id} ", end="")
-            for hop in traces[path_id]:
+            for hop in sorted(traces[path_id]):
                 print(row_format % traces[path_id][hop], end="")
             print("")
         return None
@@ -51,32 +51,47 @@ class printer:
         return None
 
     @staticmethod
-    def start_viz(traces) -> None:
+    def start_viz(traces, bind_ip) -> None:
         ## TODO: Break apart into different classes?
         # TODO: Need to re-home the http server to serve out of a tmp directory, or serve from
         import http.server
 
         port = 8081
-        bind_ip = "127.0.0.1"
-        DIRECTORY = "vars/"
+        NODES = printer._build_nodes(traces)
 
-        class Handler(http.server.SimpleHTTPRequestHandler):
+        class nodesHandler(http.server.BaseHTTPRequestHandler):
             def __init__(self, *args, **kwargs):
-                super().__init__(*args, directory=DIRECTORY, **kwargs)
+                super().__init__(*args, **kwargs)
 
-        nodes = printer.__build_nodes(traces)
-        f = open(DIRECTORY + "nodes.json", "w")
-        f.write("data = '{0}'".format(nodes))
-        f.close()
+            def do_GET(self):
+                if self.path in ["/"]:
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+
+                    f = open("index.html")
+                    self.wfile.write(bytes(f.read(), "utf-8"))
+                    f.close()
+                elif self.path in ["/nodes.json"]:
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+
+                    self.wfile.write(bytes("data = '{0}'".format(NODES), "utf-8"))
+                else:
+                    self.send_response(404)
+                    self.wfile.write(bytes("404: not found", "utf-8"))
+
         print(
             f"Starting temp. web server on http://{bind_ip}:{port}. Ctrl+C to finish/exit."
         )
-        httpd = http.server.HTTPServer((bind_ip, port), Handler)
+        httpd = http.server.HTTPServer((bind_ip, port), nodesHandler)
+        httpd.handle_request
         httpd.serve_forever()
         return None
 
     @staticmethod
-    def __build_nodes(traces: dict) -> dict:
+    def _build_nodes(traces: dict) -> dict:
         max_ttl = max([max(traces[i].keys()) for i in traces.keys()])
         nodes = dict()
         nodes["nodes"] = list()
