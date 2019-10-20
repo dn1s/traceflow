@@ -6,6 +6,11 @@ from traceflow.socket_handler import socket_handler as socket_handler
 
 from traceflow.printer import printer as printer
 
+# Expose __main__.py functions for unittest
+from traceflow.__main__ import ipid_to_ints as ipid_to_ints
+from traceflow.__main__ import ints_to_ipid as ints_to_ipid
+
+
 # logging
 import logging
 
